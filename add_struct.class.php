@@ -1,0 +1,584 @@
+<?php
+session_start();
+ini_set('display_errors', '1');
+class struct_option {
+
+	function __construct() {
+		$this->dbhost = "localhost";
+		$this->dbuser = "erp";
+		$this->dbpass = "aries12171219";
+		$this->dbname = "hiles";
+		$this->port=3306;
+		$this->socket="/tmp/mysql.sock";
+		$this->dbcon = mysql_connect($this->dbhost,$this->dbuser,$this->dbpass,$this->port) or die("Error in mysql connection");
+		$this->selecteddb = mysql_select_db($this->dbname);
+		if(empty($_SESSION['userid']) && basename($_SERVER['PHP_SELF'])!='index.php') {
+			header('location:./');
+		}
+		if(!empty($_REQUEST['doAction'])) {
+			switch($_REQUEST['doAction']) {
+				case 'Add_New_Project':
+					header('location:add_struct_option.php');
+					break;
+				case"AddProject":
+					$sql_ins = "INSERT IGNORE INTO project_details(	project,jobno,location,	tank,reference,incharge,year,date_of_sarvey,sarveydate)
+					VALUES('".addslashes($_REQUEST['txtproject'])."',
+					'".addslashes($_REQUEST['txtjobno'])."',
+					'".addslashes($_REQUEST['txtlocation'])."',
+					'".addslashes($_REQUEST['txttank'])."',
+					'".addslashes($_REQUEST['txtreference'])."',
+					'".addslashes($_REQUEST['txtincharge'])."',
+					'".addslashes($_REQUEST['txtyear'])."',
+					'".addslashes($_REQUEST['text_date_of_sarvey'])."',
+					'".addslashes($_REQUEST['txtsarveydate'])."'
+					)";
+					mysql_query($sql_ins);
+					$project_id = mysql_insert_id();
+					header('location:add_struct_option.php?project_id='.$project_id);
+					break;
+				case 'UpdateProject':
+					 $sql_update = "UPDATE IGNORE project_details
+					SET project = '".addslashes($_REQUEST['txtproject'])."',
+					jobno='".addslashes($_REQUEST['txtjobno'])."',
+					location = '".addslashes($_REQUEST['txtlocation'])."',
+					tank = '".addslashes($_REQUEST['txttank'])."',
+					reference = '".addslashes($_REQUEST['txtreference'])."',
+					incharge = '".addslashes($_REQUEST['txtincharge'])."',
+					year = '".addslashes($_REQUEST['txtyear'])."',
+					date_of_sarvey = '".addslashes($_REQUEST['text_date_of_sarvey'])."',
+					sarveydate = '".addslashes($_REQUEST['txtsarveydate'])."'
+					WHERE id = '".$_REQUEST['project_id']."'
+					";
+					mysql_query($sql_update);
+					 $sql_sel = "SELECT count(id) no FROM image_details WHERE  project_id = '".$_REQUEST['project_id']."'";
+					$rslt = mysql_query($sql_sel);
+					$row =  mysql_fetch_assoc($rslt);
+					if($row['no']>0) {
+						$this->updateImageDetails();
+
+					}
+					else {
+						$image_id = $this->insertImageDetails();
+					}
+					$this->addImage();
+					header('location:struct_project_listing.php');
+					break;
+				case 'CopyProject':
+					$project_id = $_REQUEST['project_id'];
+					$sql_sel = "SELECT p.* FROM  project_details p  WHERE p.id=".$project_id;
+					$result = mysql_query($sql_sel);
+					$row = mysql_fetch_assoc($result);
+					$sql_ins = "INSERT IGNORE INTO project_details(	project,jobno,location,	tank,reference,incharge,year,date_of_sarvey,sarveydate,copy_id)
+					VALUES('".addslashes($row['project'])."',
+					'".addslashes($row['jobno'])."',
+					'".addslashes($row['location'])."',
+					'".addslashes($row['tank'])."',
+					'',
+					'".addslashes($row['incharge'])."',
+					'".addslashes($row['year'])."',
+					'".addslashes($row['date_of_sarvey'])."',
+					'".addslashes($row['sarveydate'])."',
+					'".$project_id."'
+					)";
+					mysql_query($sql_ins);
+					$project_id = mysql_insert_id();
+					$sql_sel = "SELECT p.*,s.* FROM struct_option s LEFT JOIN project_details p ON s.project_id=p.id WHERE s.project_id=".$_REQUEST['project_id'];
+
+					$result1 = mysql_query($sql_sel);
+					while($row1 = mysql_fetch_assoc($result1)) {
+						$sql_ins = "INSERT IGNORE INTO struct_option(project_id,item,material,grade,original_thickness,allowance,thick_in_mm1,thick_in_mm2,diff_prev_cur_thick,corrosion_mm,length1,breadth1,length2,breadth2,length3,breadth3,remarks,sort_order)
+							VALUES('".addslashes($project_id)."',
+							'".addslashes($row1['item'])."',
+							'".addslashes($row1['material'])."',
+							'".addslashes($row1['grade'])."',
+							'".addslashes($row1['original_thickness'])."',
+							'".addslashes($row1['allowance'])."',
+							'".addslashes($row1['thick_in_mm1'])."',
+							'".addslashes($row1['thick_in_mm2'])."',
+							'".addslashes($row1['diff_prev_cur_thick'])."',
+							'".addslashes($row1['corrosion_mm'])."',
+							'".addslashes($row1['length1'])."',
+							'".addslashes($row1['breadth1'])."',
+							'".addslashes($row1['length2'])."',
+							'".addslashes($row1['breadth2'])."',
+							'".addslashes($row1['length3'])."',
+							'".addslashes($row1['breadth3'])."',
+							'".addslashes($row1['remarks'])."',
+							'".addslashes($row1['sort_order'])."'
+							)";
+							mysql_query($sql_ins);
+					}
+					header('location:add_struct_option.php?project_id='.$project_id);
+					break;
+				case 'CopyBlankProject':
+					$project_id = $_REQUEST['project_id'];
+					$sql_sel = "SELECT p.* FROM  project_details p  WHERE p.id=".$project_id;
+					$result = mysql_query($sql_sel);
+					$row = mysql_fetch_assoc($result);
+					$sql_ins = "INSERT IGNORE INTO project_details(	project,jobno,location,	tank,reference,incharge,year,date_of_sarvey,sarveydate,copy_id)
+					VALUES('".addslashes($row['project'])."',
+					'".addslashes($row['jobno'])."',
+					'".addslashes($row['location'])."',
+					'".addslashes($row['tank'])."',
+					'',
+					'".addslashes($row['incharge'])."',
+					'".addslashes($row['year'])."',
+					'".addslashes($row['date_of_sarvey'])."',
+					'".addslashes($row['sarveydate'])."',
+					'".$project_id."'
+					)";
+					mysql_query($sql_ins);
+					$project_id = mysql_insert_id();
+					$sql_sel = "SELECT p.*,s.* FROM struct_option s LEFT JOIN project_details p ON s.project_id=p.id WHERE s.project_id=".$_REQUEST['project_id'];
+
+					$result1 = mysql_query($sql_sel);
+					while($row1 = mysql_fetch_assoc($result1)) {
+						$sql_ins = "INSERT IGNORE INTO struct_option(project_id,item,material,grade,original_thickness,allowance,thick_in_mm1,thick_in_mm2,diff_prev_cur_thick,corrosion_mm,length1,breadth1,length2,breadth2,length3,breadth3,remarks,sort_order)
+							VALUES('".addslashes($project_id)."',
+							'".addslashes($row1['item'])."',
+							'".addslashes($row1['material'])."',
+							'".addslashes($row1['grade'])."',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'',
+							'".addslashes($row1['sort_order'])."'
+							)";
+							mysql_query($sql_ins);
+					}
+					header('location:add_struct_option.php?project_id='.$project_id);
+					break;
+				case'DeleteStruct':
+					$project_id = $_REQUEST['project_id'];
+					$struct_id = $_REQUEST['struct_id'];
+					$sql_del = "DELETE FROM struct_option WHERE id=".$struct_id;
+					mysql_query($sql_del);
+					//header('location:add_struct_option.php?project_id='.$project_id);
+					break;
+				case 'DeleteProject':
+					$project_id = $_REQUEST['project_id'];
+					 $sql_del1 = "DELETE FROM struct_option WHERE project_id=".$project_id;
+					mysql_query($sql_del1);
+					 $sql_del2 = "DELETE FROM image_details WHERE project_id=".$project_id;
+					mysql_query($sql_del2);
+					 $sql_del3 = "DELETE FROM project_details WHERE id=".$project_id;
+					mysql_query($sql_del3);
+					header('location:struct_project_listing.php');
+					break;
+				case'Update_Sortorder':
+					$project_id = $_REQUEST['project_id'];
+					$sql="SELECT id FROM struct_option WHERE project_id=".$project_id;
+					$result = mysql_query($sql);
+					$sort_order=1;
+					while($row = mysql_fetch_assoc($result)) {
+						$sql_update = 'UPDATE struct_option SET sort_order='.$sort_order.' where id='.$row['id'];
+						mysql_query($sql_update);
+						$sort_order++;
+					}
+					break;
+				case"login":
+					if(strtolower($_REQUEST['userInput'])=='msrbi21'&&strtolower($_REQUEST['passwordInput'])=='ariesrbi2025'){
+						$_SESSION['userid']=1;
+						header('location:struct_project_listing.php');
+					}
+					else {
+						header('location:./?flagErr=Y');
+					}
+					break;
+				case'logout':
+					unset($_SESSION['userid']);
+					header('location:./');
+					break;
+				case"DeleteImage":
+					$sqlimg = "SELECT image".$_REQUEST['image_no']." image FROM image_details WHERE project_id=".$_REQUEST['project_id'];
+					$rslt = mysql_query($sqlimg);
+					$row_img = mysql_fetch_assoc($rslt);
+					$sqldel = "UPDATE image_details SET image".$_REQUEST['image_no']."='' WHERE project_id=".$_REQUEST['project_id'];
+					$rslt = mysql_query($sqldel);
+					unlink('upload_images/'.$row_img['image']);
+					break;
+			}
+		}
+	}
+
+	function display() {
+		if(!empty($_REQUEST['project_id'])) {
+			$project_id = $_REQUEST['project_id'];
+			$sql_sel = "SELECT p.* FROM  project_details p  WHERE p.id=".$project_id;
+			$result = mysql_query($sql_sel);
+			return $result;
+		}
+	}
+
+	function get_stuct_option() {
+		$project_id = $_REQUEST['project_id'];
+		$sql_sel = "SELECT p.*,s.* FROM struct_option s LEFT JOIN project_details p ON s.project_id=p.id WHERE s.project_id=".$project_id." order by s.sort_order";
+		$result = mysql_query($sql_sel);
+		$struct_option = "";
+		while($row = mysql_fetch_assoc($result)) {
+			if(empty($row['item'])) $row['item'] = '';
+			if(empty($row['material'])) $row['material'] = '';
+			if(empty($row['grade'])) $row['grade'] = '';
+			if(empty($row['original_thickness'])) $row['original_thickness'] = '';
+			if(empty($row['allowance']) && $row['allowance']!='0.00') $row['allowance'] = '';
+			if(empty($row['thick_in_mm1']) && $row['thick_in_mm1']!='0.00') $row['thick_in_mm1'] = '-';
+			if(empty($row['thick_in_mm2'])&& $row['thick_in_mm2']!='0.00') $row['thick_in_mm2'] = '';
+			if(empty($row['diff_prev_cur_thick'])) $row['diff_prev_cur_thick'] = '';
+			if(empty($row['corrosion_mm'])) $row['corrosion_mm'] = '';
+			if(empty($row['length1'])) $row['length1'] = '';
+			if(empty($row['breadth1'])) $row['breadth1'] = '';
+			if(empty($row['length2'])) $row['length2'] = '';
+			if(empty($row['breadth2'])) $row['breadth2'] = '';
+			if(empty($row['length3'])) $row['length3'] = '';
+			if(empty($row['breadth3'])) $row['breadth3'] = '';
+			if(empty($row['remarks'])) $row['remarks'] = '';
+			if(!empty($row['original_thickness']) && !empty($row['allowance']) && $row['original_thickness']!='0.00' && $row['allowance']!='0.00') {
+				$row['renewal_thickness'] = round($row['original_thickness']-($row['original_thickness']*$row['allowance']/100),2);
+			}
+			else {
+				$row['renewal_thickness'] = '';
+			}
+			if($row['original_thickness']!='0.00' && $row['renewal_thickness']!='0.00'){
+				$row['sub_corrosion'] = round($row['original_thickness']-(($row['original_thickness']-$row['renewal_thickness'])*0.75),2);
+			}
+			else {
+				$row['sub_corrosion'] ='';
+			}
+			if(!empty($row['thick_in_mm1']) && $row['thick_in_mm1'] !='0.00') {
+				$row['diminution1'] = round(((($row['original_thickness']-$row['thick_in_mm1'])/100)*1000),2);
+			}
+			else {
+				$row['diminution1'] = '-';
+			}
+			if(!empty($row['thick_in_mm2']) && $row['thick_in_mm2'] !='0.00') {
+			$row['diminution2'] =((($row['original_thickness']-$row['thick_in_mm2'])/100)*1000);
+			}
+			else {
+				$row['diminution2']= '-';
+			}
+			if(!empty($row['thick_in_mm1']) && $row['thick_in_mm1']!='0.00') {
+			$row['diff_prev_cur_thick'] =$row['thick_in_mm1']-$row['thick_in_mm2'];
+			}
+			else {
+				$row['diff_prev_cur_thick'] = '-';
+			}
+			if(!empty($row['thick_in_mm1']) && $row['thick_in_mm1']!='0.00') {
+				$row['diff_diminution'] = (($row['thick_in_mm1']-$row['thick_in_mm2'])/100)*1000;
+			}
+			else {
+				$row['diff_diminution'] = '-';
+			}
+
+			$year_survey = round((strtotime($row['sarveydate']) - strtotime($row['date_of_sarvey']))/31556926,1);
+			if(empty($row['thick_in_mm1']) || $row['thick_in_mm1']=='0.00') {
+				$row['next_2year'] = round($row['thick_in_mm2']-($row['corrosion_mm']*2.5),2);
+			}
+			else {
+				if(!empty($year_survey) && $year_survey!='0.00' && !empty($row['thick_in_mm2']) &&  $row['thick_in_mm2']!='0.00') {
+				$row['next_2year'] = round($row['thick_in_mm2']-(($row['diff_prev_cur_thick']/$year_survey)*2.5),2);
+				}
+			}
+			if(empty($row['thick_in_mm1'])  || $row['thick_in_mm1']=='0.00') {
+				$row['next_5year'] = round($row['thick_in_mm2']-($row['corrosion_mm']*5),2);
+			}
+			else {
+				if(!empty($year_survey)&& $year_survey!='0.00' && !empty($row['thick_in_mm2']) &&  $row['thick_in_mm2']!='0.00') {
+				$row['next_5year'] = round($row['thick_in_mm2']-(($row['diff_prev_cur_thick']/$year_survey)*5),2);
+				}
+			}
+			if($row['length1']!='0.00' && $row['breadth1']!='0.00' && $row['original_thickness']!='0.00') {
+			$row['renewal_ton1'] = ($row['length1']*$row['breadth1']*$row['original_thickness']*8)/1000000000;
+			}
+			else {
+				$row['renewal_ton1'] = '-';
+			}
+			if($row['length2']!='0.00' && $row['breadth2']!='0.00' && $row['original_thickness']!='0.00') {
+				$row['renewal_ton2'] = ($row['length2']*$row['breadth2']*$row['original_thickness']*8)/1000000000;
+			}else {
+				$row['renewal_ton2'] = '-';
+			}
+			if($row['length3']!='0.00' && $row['breadth3']!='0.00' && $row['original_thickness']!='0.00') {
+			$row['renewal_ton3'] = ($row['length3']*$row['breadth3']*$row['original_thickness']*8)/1000000000;
+			}
+			else {
+				$row['renewal_ton3'] = '-';
+			}
+			if(empty($row['thick_in_mm2']) || $row['thick_in_mm2'] === '0.00') {
+				$row['next_2year'] = 0;
+				$row['next_5year'] = 0;
+				$row['corrosion_mm']='';
+			}
+				$struct_option[] = array(
+					'struct_id'=>$row['id'],
+					'item'=>(empty($row['item'])?'':$row['item']),
+					'material'=>(empty($row['material'])?'':$row['material']),
+					'grade'=>(empty($row['grade'])?'':$row['grade']),
+					'original_thickness'=>(($row['original_thickness']=='0.00')?'':$row['original_thickness']),
+					'allowance'=>(($row['allowance']=='0.00')?'':$row['allowance']),
+					'renewal_thickness'=>$row['renewal_thickness'],
+					'sub_corrosion'=>$row['sub_corrosion'],
+					'thick_in_mm1'=>(($row['thick_in_mm1']=='0.00')?'-':$row['thick_in_mm1']),
+					'diminution1'=>$row['diminution1'],
+					'thick_in_mm2'=>(($row['thick_in_mm2']=='0.00')?'-':$row['thick_in_mm2']),
+					'diminution2'=>$row['diminution2'],
+					'diff_prev_cur_thick'=>$row['diff_prev_cur_thick'],
+						'diff_diminution'=>$row['diff_diminution'],
+						'corrosion_mm'=>$row['corrosion_mm'],
+						'next_2year'=>(empty($row['next_2year'])?'-':$row['next_2year']),
+						'next_5year'=>(empty($row['next_5year'])?'-':$row['next_5year']),
+						'length1'=>(($row['length1']=='0.00')?'':$row['length1']),
+						'breadth1'=>(($row['breadth1']=='0.00')?'':$row['breadth1']),
+						'renewal_ton1'=>$row['renewal_ton1'] ,
+						'length2'=>(($row['length2']=='0.00')?'':$row['length2']),
+						'breadth2'=>(($row['breadth2']=='0.00')?'':$row['breadth2']),
+						'renewal_ton2'=>$row['renewal_ton2'] ,
+						'length3'=>(($row['length3']=='0.00')?'':$row['length3']),
+						'breadth3'=>(($row['breadth3']=='0.00')?'':$row['breadth3']),
+						'renewal_ton3'=>$row['renewal_ton3'],
+						'remarks'=>$row['remarks'],
+						'delete_struct'=>"<a href=\"javascript:deleteStuct('".$row['project_id']."','".$row['id']."');\"><img src=\"images/b_drop.png\"/></a>",
+						'add_struct'=>"<a href=\"javascript:add_struct('".$row['project_id']."','".$row['sort_order']."');\"><img src=\"images/add.png\"/></a>",
+					);
+		}
+
+		return $struct_option;
+	}
+
+	/*Function for inserting image details*/
+	function insertImageDetails() {
+		 $sql_ins = "INSERT IGNORE INTO image_details (project_id,title1,description1,title2,description2,title3,description3,title4,description4,rating1,observations1, recommendations1,title5,description5,title6,description6,title7,description7,title8,description8,rating2,observations2,recommendations2
+		 ,title9,description9,title10,description10,title11,description11,title12,description12,rating3,observations3, recommendations3,title13,description13,title14,description14,title15,description15,title16,description16,rating4,observations4,
+		 recommendations4,height,width)
+		VALUES('".addslashes($_REQUEST['project_id'])."',
+		'".addslashes($_REQUEST['txttitle1'])."',
+		'".addslashes($_REQUEST['txtdescription1'])."',
+		'".addslashes($_REQUEST['txttitle2'])."',
+		'".addslashes($_REQUEST['txtdescription2'])."',
+		'".addslashes($_REQUEST['txttitle3'])."',
+		'".addslashes($_REQUEST['txtdescription3'])."',
+		'".addslashes($_REQUEST['txttitle4'])."',
+		'".addslashes($_REQUEST['txtdescription4'])."',
+		'".addslashes($_REQUEST['txtrating1'])."',
+		'".addslashes($_REQUEST['txtobservations1'])."',
+		'".addslashes($_REQUEST['txtrecommendations1'])."',
+		'".addslashes($_REQUEST['txttitle5'])."',
+		'".addslashes($_REQUEST['txtdescription5'])."',
+		'".addslashes($_REQUEST['txttitle6'])."',
+		'".addslashes($_REQUEST['txtdescription6'])."',
+		'".addslashes($_REQUEST['txttitle7'])."',
+		'".addslashes($_REQUEST['txtdescription7'])."',
+		'".addslashes($_REQUEST['txttitle8'])."',
+		'".addslashes($_REQUEST['txtdescription8'])."',
+		'".addslashes($_REQUEST['txtrating2'])."',
+		'".addslashes($_REQUEST['txtobservations2'])."',
+		'".addslashes($_REQUEST['txtrecommendations2'])."',
+		'".addslashes($_REQUEST['txttitle9'])."',
+		'".addslashes($_REQUEST['txtdescription9'])."',
+		'".addslashes($_REQUEST['txttitle10'])."',
+		'".addslashes($_REQUEST['txtdescription10'])."',
+		'".addslashes($_REQUEST['txttitle11'])."',
+		'".addslashes($_REQUEST['txtdescription11'])."',
+		'".addslashes($_REQUEST['txttitle12'])."',
+		'".addslashes($_REQUEST['txtdescription12'])."',
+		'".addslashes($_REQUEST['txtrating3'])."',
+		'".addslashes($_REQUEST['txtobservations3'])."',
+		'".addslashes($_REQUEST['txtrecommendations3'])."',
+		'".addslashes($_REQUEST['txttitle13'])."',
+		'".addslashes($_REQUEST['txtdescription13'])."',
+		'".addslashes($_REQUEST['txttitle14'])."',
+		'".addslashes($_REQUEST['txtdescription14'])."',
+		'".addslashes($_REQUEST['txttitle15'])."',
+		'".addslashes($_REQUEST['txtdescription15'])."',
+		'".addslashes($_REQUEST['txttitle16'])."',
+		'".addslashes($_REQUEST['txtdescription16'])."',
+		'".addslashes($_REQUEST['txtrating4'])."',
+		'".addslashes($_REQUEST['txtobservations4'])."',
+		'".addslashes($_REQUEST['txtrecommendations4'])."',
+		'".addslashes($_REQUEST['txtheight'])."',
+		'".addslashes($_REQUEST['txtwidth'])."'
+		)";
+		mysql_query($sql_ins);
+		$image_id = mysql_insert_id();
+		return $image_id;
+	}
+
+	/*Function for updating image deatils*/
+	function updateImageDetails() {
+		 $upd_sql = "UPDATE IGNORE image_details
+		SET title1 = '".addslashes($_REQUEST['txttitle1'])."',
+		description1 = '".addslashes($_REQUEST['txtdescription1'])."',
+		title2 = '".addslashes($_REQUEST['txttitle2'])."',
+		description2 = '".addslashes($_REQUEST['txtdescription2'])."',
+		title3 = '".addslashes($_REQUEST['txttitle3'])."',
+		description3 = '".addslashes($_REQUEST['txtdescription3'])."',
+		title4 = '".addslashes($_REQUEST['txttitle4'])."',
+		description4 = '".addslashes($_REQUEST['txtdescription4'])."',
+		rating1 = '".addslashes($_REQUEST['txtrating1'])."',
+		observations1 = '".addslashes($_REQUEST['txtobservations1'])."',
+		recommendations1 = '".addslashes($_REQUEST['txtrecommendations1'])."',
+		title5 = '".addslashes($_REQUEST['txttitle5'])."',
+		description5 = '".addslashes($_REQUEST['txtdescription5'])."',
+		title6 = '".addslashes($_REQUEST['txttitle6'])."',
+		description6 = '".addslashes($_REQUEST['txtdescription6'])."',
+		title7 = '".addslashes($_REQUEST['txttitle7'])."',
+		description7 = '".addslashes($_REQUEST['txtdescription7'])."',
+		title8 = '".addslashes($_REQUEST['txttitle8'])."',
+		description8 = '".addslashes($_REQUEST['txtdescription8'])."',
+		rating2 = '".addslashes($_REQUEST['txtrating2'])."',
+		observations2 = '".addslashes($_REQUEST['txtobservations2'])."',
+		recommendations2 = '".addslashes($_REQUEST['txtrecommendations2'])."',
+		title9= '".addslashes($_REQUEST['txttitle9'])."',
+		description9 = '".addslashes($_REQUEST['txtdescription9'])."',
+		title10 = '".addslashes($_REQUEST['txttitle10'])."',
+		description10 = '".addslashes($_REQUEST['txtdescription10'])."',
+		title11 = '".addslashes($_REQUEST['txttitle11'])."',
+		description11 = '".addslashes($_REQUEST['txtdescription11'])."',
+		title12 = '".addslashes($_REQUEST['txttitle12'])."',
+		description12 = '".addslashes($_REQUEST['txtdescription12'])."',
+		rating3 = '".addslashes($_REQUEST['txtrating3'])."',
+		observations3 = '".addslashes($_REQUEST['txtobservations3'])."',
+		recommendations3 = '".addslashes($_REQUEST['txtrecommendations3'])."',
+		title13 = '".addslashes($_REQUEST['txttitle13'])."',
+		description13 = '".addslashes($_REQUEST['txtdescription13'])."',
+		title14 = '".addslashes($_REQUEST['txttitle14'])."',
+		description14 = '".addslashes($_REQUEST['txtdescription14'])."',
+		title15 = '".addslashes($_REQUEST['txttitle15'])."',
+		description15 = '".addslashes($_REQUEST['txtdescription15'])."',
+		title16 = '".addslashes($_REQUEST['txttitle16'])."',
+		description16 = '".addslashes($_REQUEST['txtdescription16'])."',
+		rating4 = '".addslashes($_REQUEST['txtrating4'])."',
+		observations4 = '".addslashes($_REQUEST['txtobservations4'])."',
+		height = '".addslashes($_REQUEST['txtheight'])."',
+		width = '".addslashes($_REQUEST['txtwidth'])."',
+		recommendations4 = '".addslashes($_REQUEST['txtrecommendations4'])."'
+		WHERE project_id = '".$_REQUEST['project_id']."'
+		";
+		mysql_query($upd_sql);
+	}
+
+	/*function for displaying image details*/
+	function displayImageDetails($project_id=null) {
+		$sql_sel = "SELECT * FROM image_details WHERE project_id='".$project_id."'";
+		$result = mysql_query($sql_sel);
+		return $result;
+	}
+
+	function addImage() {
+		for($i=1;$i<=16;$i++) {
+			if(!empty($_FILES['txtfile'.$i]['name'])) {
+				$extn = substr($_FILES['txtfile'.$i]['name'],strpos($_FILES['txtfile'.$i]['name'],'.'));
+				$file = substr($_FILES['txtfile'.$i]['name'],0,strpos($_FILES['txtfile'.$i]['name'],'.'));
+				$filename = $file.$_REQUEST['project_id']."_".$i.$extn;
+				$original_file = $_FILES['txtfile'.$i]['tmp_name'];
+				$filepath = 'upload_images/original/'.$filename;
+				$resize = 'upload_images/'.$filename;
+				if(copy($original_file,$filepath)) {
+					include_once "hft_image.php";
+					include_once "hft_image_errors.php";
+
+					// Get the new height and width
+					$height = $_REQUEST['txtheight'];
+					$width = $_REQUEST['txtwidth'];
+
+
+					//$objImage = new hft_image($filepath);
+					//$objImage->resize($width, $height, '0');
+					//$objImage->output_resized($resize, "JPEG");
+					//unset($objImage);
+					copy($original_file,$resize);
+					$sql_upd = "UPDATE IGNORE image_details
+					SET image".$i."='".$filename."'
+					WHERE project_id = '".$_REQUEST['project_id']."'";
+					mysql_query($sql_upd);
+				}
+			}
+		}
+	}
+	function get_project_list() {
+		$sql = "SELECT * FROM project_details WHERE 1 ORDER BY id,copy_id";
+		$result = mysql_query($sql);
+		while($row = mysql_fetch_assoc($result)) {
+			$struct1="";
+				$struct2="";
+			if(empty($row['copy_id'])) {
+				$struct1="<a href='add_struct_option.php?doAction=CopyProject&project_id=".$row['id']."'>Copy</a>";
+				$struct2="<a href='add_struct_option.php?doAction=CopyBlankProject&project_id=".$row['id']."'>Blank Copy</a>";
+			}
+		$struct_options[] = array(
+			'project_id'=>$row['id'],
+			'project'=>$row['project'],
+			'jobno'=>$row['jobno'],
+			'location'=>$row['location'],
+			'tank'=>$row['tank'],
+			'reference'=>$row['reference'],
+			'incharge'=>$row['incharge'],
+			'edit'=>"<a href='add_struct_option.php?project_id=".$row['id']."'><img src='images/b_edit.png'/></a>",
+			'download'=>"<a href='report_struct_option_excel.php?project_id=".$row['id']."'><img src='images/page_excel.png'/></a>",
+			'copy_project'=>$struct1,
+			'copy_blank_project'=>$struct2,
+			'delete_project'=>"<a href=\"javascript:deleteProject('".$row['id']."');\"><img src=\"images/b_drop.png\"/></a>",
+			);
+			/*if($this->isCopyExist($row['id'])) {
+				print "YES";
+				$struct_options[] = $this->linkItr($row['id'],$struct_options);
+			}*/
+		}
+		return $struct_options;
+	}
+
+	function isCopyExist($project_id) {
+		 $sql_sel = "SELECT count(id) cntPrjct FROM project_details
+		WHERE copy_id=".$project_id;
+		$rslt = mysql_query($sql_sel);
+		$row = mysql_fetch_assoc($rslt);
+		if($row['cntPrjct']>0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	function linkItr($project_id,$struct_options) {
+		print $sql1 = "SELECT * FROM project_details WHERE copy_id='".$project_id."' ORDER BY id,copy_id";
+			//$result1 = mysql_query($sql1);
+			/*while($row1 = mysql_fetch_assoc($result1)) {
+				$struct1="";
+				$struct2="";
+					if(!empty($row1['copy_id'])) {
+						$struct1="<a href='add_struct_option.php?doAction=CopyProject&project_id=".$row1['id']."'>Copy</a>";
+						$struct2="<a href='add_struct_option.php?doAction=CopyBlankProject&project_id=".$row1['id']."'>Blank Copy</a>";
+					}
+				$struct_options[] = array(
+					'project_id'=>$row1['id'],
+					'project'=>$row1['project'],
+					'jobno'=>$row1['jobno'],
+					'location'=>$row1['location'],
+					'tank'=>$row1['tank'],
+					'reference'=>$row1['reference'],
+					'incharge'=>$row1['incharge'],
+					'edit'=>"<a href='add_struct_option.php?project_id=".$row1['id']."'><img src='images/b_edit.png'/></a>",
+					'download'=>"<a href='report_struct_option_excel.php?project_id=".$row1['id']."'><img src='images/page_excel.png'/></a>",
+					'copy_project'=>$struct1,
+					'copy_blank_project'=>$struct2,
+					'delete_project'=>"<a href=\"javascript:deleteProject('".$row1['id']."');\"><img src=\"images/b_drop.png\"/></a>",
+					);
+				/*if($this->isCopyExist($row1['id'])) {
+					$struct_options[] = $this->linkItr($row1['id'],$struct_options);
+				}
+
+			}*/
+			return $struct_options;
+	}
+}
+$objstruct = new struct_option();
+?>
