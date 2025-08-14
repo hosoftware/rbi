@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', '0');
+ini_set('display_errors', '1');
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 require_once('../vendor/autoload.php');
+exit;
 $path_to_root="..";
 include_once "add_struct.class.php";
 
