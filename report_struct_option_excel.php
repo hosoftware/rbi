@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', '1');
+ini_set('display_errors', '0');
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -387,7 +387,7 @@ $border2 = [
     ]
 ];
 
-exit;
+
 
 //$objPHPExcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($tableheader);
 	$i=4;
