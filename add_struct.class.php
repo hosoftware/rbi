@@ -9,14 +9,14 @@ class struct_option {
 		$this->dbpass = "aries12171219";
 		$this->dbname = "hiles";
 		$this->port=3306;
-		$this->socket="/tmp/mysql.sock";
+		//$this->socket="/tmp/mysql.sock";
 		$this->dbcon = mysqli_connect(
 			$this->dbhost,
 			$this->dbuser,
 			$this->dbpass,
 			$this->dbname,   // database name goes here
-			$this->port,     // port here
-			$this->socket    // optional socket
+			$this->port     // port here
+			//$this->socket    // optional socket
 		) or die("Error in mysql connection");
 		
 		//$this->dbcon = mysqli_connect($this->dbhost,$this->dbuser,$this->dbpass,$this->port) or die("Error in mysql connection");
