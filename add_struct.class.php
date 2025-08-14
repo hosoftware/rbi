@@ -1,12 +1,12 @@
 <?php
 session_start();
-ini_set('display_errors', '0');
+ini_set('display_errors', '1');
 class struct_option {
 
 	function __construct() {
 		$this->dbhost = "localhost";
-		$this->dbuser = "erp";
-		$this->dbpass = "aries12171219";
+		$this->dbuser = "root";
+		$this->dbpass = "";
 		$this->dbname = "hiles";
 		$this->port=3306;
 		//$this->socket="/tmp/mysql.sock";

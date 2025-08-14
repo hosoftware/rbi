@@ -1,6 +1,6 @@
 <?php
 include_once "add_struct.class.php";
-$dbcon = mysqli_connect("localhost", "root", "", "hiles", 3306, "/tmp/mysql.sock")
+$dbcon = mysqli_connect("localhost", "erp", "aries12171219", "hiles", 3306)
     or die("Error in mysql connection");
 if(!empty($_REQUEST['update'])) { 
 	if(empty($_REQUEST['corrosion_mm'])) {
