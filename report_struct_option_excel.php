@@ -11,7 +11,6 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 require_once('../vendor/autoload.php');
-exit;
 $path_to_root="..";
 include_once "add_struct.class.php";
 
@@ -388,7 +387,7 @@ $border2 = [
     ]
 ];
 
-
+exit;
 
 //$objPHPExcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($tableheader);
 	$i=4;
