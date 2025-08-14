@@ -1,6 +1,6 @@
 <?php
 session_start();
-ini_set('display_errors', '1');
+ini_set('display_errors', '0');
 class struct_option {
 
 	function __construct() {
