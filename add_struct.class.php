@@ -10,8 +10,17 @@ class struct_option {
 		$this->dbname = "hiles";
 		$this->port=3306;
 		$this->socket="/tmp/mysql.sock";
-		$this->dbcon = mysql_connect($this->dbhost,$this->dbuser,$this->dbpass,$this->port) or die("Error in mysql connection");
-		$this->selecteddb = mysql_select_db($this->dbname);
+		$this->dbcon = mysqli_connect(
+			$this->dbhost,
+			$this->dbuser,
+			$this->dbpass,
+			$this->dbname,   // database name goes here
+			$this->port,     // port here
+			$this->socket    // optional socket
+		) or die("Error in mysql connection");
+		
+		//$this->dbcon = mysqli_connect($this->dbhost,$this->dbuser,$this->dbpass,$this->port) or die("Error in mysql connection");
+		$this->selecteddb = mysqli_select_db($this->dbcon,$this->dbname);
 		if(empty($_SESSION['userid']) && basename($_SERVER['PHP_SELF'])!='index.php') {
 			header('location:./');
 		}
@@ -32,8 +41,8 @@ class struct_option {
 					'".addslashes($_REQUEST['text_date_of_sarvey'])."',
 					'".addslashes($_REQUEST['txtsarveydate'])."'
 					)";
-					mysql_query($sql_ins);
-					$project_id = mysql_insert_id();
+					mysqli_query($this->dbcon,$sql_ins);
+					$project_id = mysqli_insert_id($this->dbcon);
 					header('location:add_struct_option.php?project_id='.$project_id);
 					break;
 				case 'UpdateProject':
@@ -49,10 +58,10 @@ class struct_option {
 					sarveydate = '".addslashes($_REQUEST['txtsarveydate'])."'
 					WHERE id = '".$_REQUEST['project_id']."'
 					";
-					mysql_query($sql_update);
+					mysqli_query($this->dbcon,$sql_update);
 					 $sql_sel = "SELECT count(id) no FROM image_details WHERE  project_id = '".$_REQUEST['project_id']."'";
-					$rslt = mysql_query($sql_sel);
-					$row =  mysql_fetch_assoc($rslt);
+					$rslt = mysqli_query($this->dbcon,$sql_sel);
+					$row =  mysqli_fetch_assoc($rslt);
 					if($row['no']>0) {
 						$this->updateImageDetails();
 
@@ -66,8 +75,8 @@ class struct_option {
 				case 'CopyProject':
 					$project_id = $_REQUEST['project_id'];
 					$sql_sel = "SELECT p.* FROM  project_details p  WHERE p.id=".$project_id;
-					$result = mysql_query($sql_sel);
-					$row = mysql_fetch_assoc($result);
+					$result = mysqli_query($this->dbcon,$sql_sel);
+					$row = mysqli_fetch_assoc($result);
 					$sql_ins = "INSERT IGNORE INTO project_details(	project,jobno,location,	tank,reference,incharge,year,date_of_sarvey,sarveydate,copy_id)
 					VALUES('".addslashes($row['project'])."',
 					'".addslashes($row['jobno'])."',
@@ -80,12 +89,12 @@ class struct_option {
 					'".addslashes($row['sarveydate'])."',
 					'".$project_id."'
 					)";
-					mysql_query($sql_ins);
-					$project_id = mysql_insert_id();
+					mysqli_query($this->dbcon,$sql_ins);
+					$project_id = mysqli_insert_id($this->dbcon);
 					$sql_sel = "SELECT p.*,s.* FROM struct_option s LEFT JOIN project_details p ON s.project_id=p.id WHERE s.project_id=".$_REQUEST['project_id'];
 
-					$result1 = mysql_query($sql_sel);
-					while($row1 = mysql_fetch_assoc($result1)) {
+					$result1 = mysqli_query($this->dbcon,$sql_sel);
+					while($row1 = mysqli_fetch_assoc($result1)) {
 						$sql_ins = "INSERT IGNORE INTO struct_option(project_id,item,material,grade,original_thickness,allowance,thick_in_mm1,thick_in_mm2,diff_prev_cur_thick,corrosion_mm,length1,breadth1,length2,breadth2,length3,breadth3,remarks,sort_order)
 							VALUES('".addslashes($project_id)."',
 							'".addslashes($row1['item'])."',
@@ -106,15 +115,15 @@ class struct_option {
 							'".addslashes($row1['remarks'])."',
 							'".addslashes($row1['sort_order'])."'
 							)";
-							mysql_query($sql_ins);
+							mysqli_query($this->dbcon,$sql_ins);
 					}
 					header('location:add_struct_option.php?project_id='.$project_id);
 					break;
 				case 'CopyBlankProject':
 					$project_id = $_REQUEST['project_id'];
 					$sql_sel = "SELECT p.* FROM  project_details p  WHERE p.id=".$project_id;
-					$result = mysql_query($sql_sel);
-					$row = mysql_fetch_assoc($result);
+					$result = mysqli_query($this->dbcon,$sql_sel);
+					$row = mysqli_fetch_assoc($result);
 					$sql_ins = "INSERT IGNORE INTO project_details(	project,jobno,location,	tank,reference,incharge,year,date_of_sarvey,sarveydate,copy_id)
 					VALUES('".addslashes($row['project'])."',
 					'".addslashes($row['jobno'])."',
@@ -127,12 +136,12 @@ class struct_option {
 					'".addslashes($row['sarveydate'])."',
 					'".$project_id."'
 					)";
-					mysql_query($sql_ins);
-					$project_id = mysql_insert_id();
+					mysqli_query($this->dbcon,$sql_ins);
+					$project_id = mysqli_insert_id($this->dbcon);
 					$sql_sel = "SELECT p.*,s.* FROM struct_option s LEFT JOIN project_details p ON s.project_id=p.id WHERE s.project_id=".$_REQUEST['project_id'];
 
-					$result1 = mysql_query($sql_sel);
-					while($row1 = mysql_fetch_assoc($result1)) {
+					$result1 = mysqli_query($this->dbcon,$sql_sel);
+					while($row1 = mysqli_fetch_assoc($result1)) {
 						$sql_ins = "INSERT IGNORE INTO struct_option(project_id,item,material,grade,original_thickness,allowance,thick_in_mm1,thick_in_mm2,diff_prev_cur_thick,corrosion_mm,length1,breadth1,length2,breadth2,length3,breadth3,remarks,sort_order)
 							VALUES('".addslashes($project_id)."',
 							'".addslashes($row1['item'])."',
@@ -153,7 +162,7 @@ class struct_option {
 							'',
 							'".addslashes($row1['sort_order'])."'
 							)";
-							mysql_query($sql_ins);
+							mysqli_query($this->dbcon,$sql_ins);
 					}
 					header('location:add_struct_option.php?project_id='.$project_id);
 					break;
@@ -161,27 +170,27 @@ class struct_option {
 					$project_id = $_REQUEST['project_id'];
 					$struct_id = $_REQUEST['struct_id'];
 					$sql_del = "DELETE FROM struct_option WHERE id=".$struct_id;
-					mysql_query($sql_del);
+					mysqli_query($this->dbcon,$sql_del);
 					//header('location:add_struct_option.php?project_id='.$project_id);
 					break;
 				case 'DeleteProject':
 					$project_id = $_REQUEST['project_id'];
 					 $sql_del1 = "DELETE FROM struct_option WHERE project_id=".$project_id;
-					mysql_query($sql_del1);
+					mysqli_query($this->dbcon,$sql_del1);
 					 $sql_del2 = "DELETE FROM image_details WHERE project_id=".$project_id;
-					mysql_query($sql_del2);
+					mysqli_query($this->dbcon,$sql_del2);
 					 $sql_del3 = "DELETE FROM project_details WHERE id=".$project_id;
-					mysql_query($sql_del3);
+					mysqli_query($this->dbcon,$sql_del3);
 					header('location:struct_project_listing.php');
 					break;
 				case'Update_Sortorder':
 					$project_id = $_REQUEST['project_id'];
 					$sql="SELECT id FROM struct_option WHERE project_id=".$project_id;
-					$result = mysql_query($sql);
+					$result = mysqli_query($this->dbcon,$sql);
 					$sort_order=1;
-					while($row = mysql_fetch_assoc($result)) {
+					while($row = mysqli_fetch_assoc($result)) {
 						$sql_update = 'UPDATE struct_option SET sort_order='.$sort_order.' where id='.$row['id'];
-						mysql_query($sql_update);
+						mysqli_query($this->dbcon,$sql_update);
 						$sort_order++;
 					}
 					break;
@@ -200,11 +209,16 @@ class struct_option {
 					break;
 				case"DeleteImage":
 					$sqlimg = "SELECT image".$_REQUEST['image_no']." image FROM image_details WHERE project_id=".$_REQUEST['project_id'];
-					$rslt = mysql_query($sqlimg);
-					$row_img = mysql_fetch_assoc($rslt);
+					$rslt = mysqli_query($this->dbcon,$sqlimg);
+					$row_img = mysqli_fetch_assoc($rslt);
 					$sqldel = "UPDATE image_details SET image".$_REQUEST['image_no']."='' WHERE project_id=".$_REQUEST['project_id'];
-					$rslt = mysql_query($sqldel);
-					unlink('upload_images/'.$row_img['image']);
+					$rslt = mysqli_query($this->dbcon,$sqldel);
+					//unlink('upload_images/'.$row_img['image']);
+					$filePath = 'upload_images/' . $row_img['image'];
+
+                    if (!empty($row_img['image']) && is_file($filePath)) {
+                    unlink($filePath);
+                    }
 					break;
 			}
 		}
@@ -214,17 +228,18 @@ class struct_option {
 		if(!empty($_REQUEST['project_id'])) {
 			$project_id = $_REQUEST['project_id'];
 			$sql_sel = "SELECT p.* FROM  project_details p  WHERE p.id=".$project_id;
-			$result = mysql_query($sql_sel);
+			$result = mysqli_query($this->dbcon,$sql_sel);
 			return $result;
 		}
 	}
 
 	function get_stuct_option() {
-		$project_id = $_REQUEST['project_id'];
+		//$project_id = $_REQUEST['project_id'];
+		$project_id = isset($_REQUEST['project_id']) ? (int)$_REQUEST['project_id'] : 0;
 		$sql_sel = "SELECT p.*,s.* FROM struct_option s LEFT JOIN project_details p ON s.project_id=p.id WHERE s.project_id=".$project_id." order by s.sort_order";
-		$result = mysql_query($sql_sel);
+		$result = mysqli_query($this->dbcon,$sql_sel);
 		$struct_option = "";
-		while($row = mysql_fetch_assoc($result)) {
+		while($row = mysqli_fetch_assoc($result)) {
 			if(empty($row['item'])) $row['item'] = '';
 			if(empty($row['material'])) $row['material'] = '';
 			if(empty($row['grade'])) $row['grade'] = '';
@@ -248,7 +263,7 @@ class struct_option {
 				$row['renewal_thickness'] = '';
 			}
 			if($row['original_thickness']!='0.00' && $row['renewal_thickness']!='0.00'){
-				$row['sub_corrosion'] = round($row['original_thickness']-(($row['original_thickness']-$row['renewal_thickness'])*0.75),2);
+				$row['sub_corrosion'] = round((float)$row['original_thickness']-(((float)$row['original_thickness']-(float)$row['renewal_thickness'])*0.75),2);
 			}
 			else {
 				$row['sub_corrosion'] ='';
@@ -317,6 +332,7 @@ class struct_option {
 				$row['next_5year'] = 0;
 				$row['corrosion_mm']='';
 			}
+			    $struct_option = []; 
 				$struct_option[] = array(
 					'struct_id'=>$row['id'],
 					'item'=>(empty($row['item'])?'':$row['item']),
@@ -406,8 +422,8 @@ class struct_option {
 		'".addslashes($_REQUEST['txtheight'])."',
 		'".addslashes($_REQUEST['txtwidth'])."'
 		)";
-		mysql_query($sql_ins);
-		$image_id = mysql_insert_id();
+		mysqli_query($this->dbcon,$sql_ins);
+		$image_id = mysqli_insert_id();
 		return $image_id;
 	}
 
@@ -462,13 +478,13 @@ class struct_option {
 		recommendations4 = '".addslashes($_REQUEST['txtrecommendations4'])."'
 		WHERE project_id = '".$_REQUEST['project_id']."'
 		";
-		mysql_query($upd_sql);
+		mysqli_query($this->dbcon,$upd_sql);
 	}
 
 	/*function for displaying image details*/
 	function displayImageDetails($project_id=null) {
 		$sql_sel = "SELECT * FROM image_details WHERE project_id='".$project_id."'";
-		$result = mysql_query($sql_sel);
+		$result = mysqli_query($this->dbcon,$sql_sel);
 		return $result;
 	}
 
@@ -498,15 +514,15 @@ class struct_option {
 					$sql_upd = "UPDATE IGNORE image_details
 					SET image".$i."='".$filename."'
 					WHERE project_id = '".$_REQUEST['project_id']."'";
-					mysql_query($sql_upd);
+					mysqli_query($this->dbcon,$sql_upd);
 				}
 			}
 		}
 	}
 	function get_project_list() {
 		$sql = "SELECT * FROM project_details WHERE 1 ORDER BY id,copy_id";
-		$result = mysql_query($sql);
-		while($row = mysql_fetch_assoc($result)) {
+		$result = mysqli_query($this->dbcon,$sql);
+		while($row = mysqli_fetch_assoc($result)) {
 			$struct1="";
 				$struct2="";
 			if(empty($row['copy_id'])) {
@@ -538,8 +554,8 @@ class struct_option {
 	function isCopyExist($project_id) {
 		 $sql_sel = "SELECT count(id) cntPrjct FROM project_details
 		WHERE copy_id=".$project_id;
-		$rslt = mysql_query($sql_sel);
-		$row = mysql_fetch_assoc($rslt);
+		$rslt = mysqli_query($this->dbcon,$sql_sel);
+		$row = mysqli_fetch_assoc($rslt);
 		if($row['cntPrjct']>0) {
 			return true;
 		}
@@ -550,8 +566,8 @@ class struct_option {
 
 	function linkItr($project_id,$struct_options) {
 		print $sql1 = "SELECT * FROM project_details WHERE copy_id='".$project_id."' ORDER BY id,copy_id";
-			//$result1 = mysql_query($sql1);
-			/*while($row1 = mysql_fetch_assoc($result1)) {
+			//$result1 = mysqli_query($this->dbcon,$sql1);
+			/*while($row1 = mysqli_fetch_assoc($result1)) {
 				$struct1="";
 				$struct2="";
 					if(!empty($row1['copy_id'])) {
