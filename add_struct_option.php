@@ -2,7 +2,7 @@
 include_once "add_struct.class.php";
 if(!empty($_REQUEST['project_id'])) {
 	$rslt = $objstruct->display();
-	$row = mysql_fetch_assoc($rslt);
+	$row = mysqli_fetch_assoc($rslt);
 }
 else {
 	$_REQUEST['project_id']=0;
@@ -610,7 +610,7 @@ if(!empty($row['sarveydate'])) {
 			<div class='sect2'><?php
 
 				$result = $objstruct->displayImageDetails($_REQUEST['project_id']);
-				$row = mysql_fetch_assoc($result);
+				$row = mysqli_fetch_assoc($result);
 				$_REQUEST['txtheight'] = "200";
 				if(!empty($row['height'])) {
 					$_REQUEST['txtheight'] = $row['height'];

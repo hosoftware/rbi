@@ -1,21 +1,30 @@
 <?php
-ini_set("include_path", 'phpexcel/');
-require_once 'PHPExcel.php';
-require_once 'PHPExcel/IOFactory.php';
+ini_set('display_errors', '1');
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Style;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+require_once('../vendor/autoload.php');
 $path_to_root="..";
 include_once "add_struct.class.php";
 
 $reslt = $objstruct->display();
-$row_project = mysql_fetch_assoc($reslt);
-$objPHPExcel = new PHPExcel();
+$row_project = mysqli_fetch_assoc($reslt);
+$objPHPExcel = new Spreadsheet();
 
 $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setName('Times New Roman');
 $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(12);
 $objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
-//$objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+//$objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(Alignment::VERTICAL_CENTER);
 //$objPHPExcel->getActiveSheet()->mergeCells('A1:G1');
 
-$sharedStyle1 = new PHPExcel_Style();
+$sharedStyle1 = new Style();
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToWidth(1);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToHeight(1);
 
@@ -47,7 +56,7 @@ $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(35);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('Z')->setWidth(30);
 $sharedStyle1->applyFromArray(
 		array('fill' 	=> array(
-				'type'		=> PHPExcel_Style_Fill::FILL_SOLID,
+				'type'		=> Fill::FILL_SOLID,
 				'color'		=> array('argb' => 'FFFFFF00')
 		),
 				'font'=>array(
@@ -56,15 +65,15 @@ $sharedStyle1->applyFromArray(
 						'bold'=>true
 				),
 				'alignment'=>array(
-						'horizontal'=>PHPExcel_Style_Alignment::VERTICAL_CENTER
+						'horizontal'=>Alignment::VERTICAL_CENTER
 				),
 
 
 		  'borders' => array(
-		  		'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-		  		'right'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-		  		'left'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-		  		'top'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
+		  		'bottom'	=> array('style' => Border::BORDER_MEDIUM),
+		  		'right'		=> array('style' => Border::BORDER_MEDIUM),
+		  		'left'		=> array('style' => Border::BORDER_MEDIUM),
+		  		'top'		=> array('style' => Border::BORDER_MEDIUM),
 		  )
 		));
 
@@ -76,15 +85,15 @@ array(
 				'bold'=>true
 		),
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 		),
 
 
 		'borders' => array(
-				'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-				'right'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-				'left'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-				'top'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
+				'bottom'	=> array('style' => Border::BORDER_MEDIUM),
+				'right'		=> array('style' => Border::BORDER_MEDIUM),
+				'left'		=> array('style' => Border::BORDER_MEDIUM),
+				'top'		=> array('style' => Border::BORDER_MEDIUM),
 		)
 );
 $totalborder=
@@ -95,27 +104,27 @@ array(
 				'bold'=>true
 		),
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 		),
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 		),
 		'numberformat'=>array(
-				'code'=>PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00
+				'code'=>NumberFormat::FORMAT_NUMBER_00
 		),
 
 		'borders' => array(
-				'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-				'right'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-				'left'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
-				'top'		=> array('style' => PHPExcel_Style_Border::BORDER_MEDIUM),
+				'bottom'	=> array('style' => Border::BORDER_MEDIUM),
+				'right'		=> array('style' => Border::BORDER_MEDIUM),
+				'left'		=> array('style' => Border::BORDER_MEDIUM),
+				'top'		=> array('style' => Border::BORDER_MEDIUM),
 		)
 );
 
 $companyformat = array(
 		'borders' => array(
 				'outline' => array(
-						'style' => PHPExcel_Style_Border::BORDER_THIN,
+						'style' => Border::BORDER_THIN,
 						'color' => array('argb' => 'FF000000'),
 				),
 		),
@@ -129,19 +138,19 @@ $companyformat = array(
 $tableheader = array(
 		'borders' => array(
 				'allborders' => array(
-						'style' => PHPExcel_Style_Border::BORDER_THIN,
+						'style' => Border::BORDER_THIN,
 						'color' => array('argb' => 'FF000000'),
 				),
 
-				'bottom'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+				'bottom'		=> array('style' => Border::BORDER_THIN),
 		),
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-				'vertical'=>PHPExcel_Style_Alignment::VERTICAL_CENTER
+				'horizontal'=>Alignment::HORIZONTAL_CENTER,
+				'vertical'=>Alignment::VERTICAL_CENTER
 
 		),
 		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'type' => Fill::FILL_SOLID,
 				'color' => array('rgb'=>'0091D3'),
 		),
 
@@ -153,19 +162,19 @@ $tableheader = array(
 );
 $tableheader1 = array(
 		'borders' => array(
-				'allborders' => array(
-						'style' => PHPExcel_Style_Border::BORDER_THIN,
+				'allBorders' => array(
+						'borderStyle' => Border::BORDER_THIN,
 						'color' => array('argb' => 'FF000000'),
 				),
 				'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array('rgb'=>'00CBD3'),
 				),
-				'bottom'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+				'bottom'		=> array('borderStyle' => Border::BORDER_THIN),
 		),
 
 	'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::VERTICAL_CENTER
+				'horizontal'=>Alignment::VERTICAL_CENTER
 		),
 
 		'font'=>array(
@@ -177,12 +186,12 @@ $tableheader1 = array(
 );
 $tableheader3 = array(
 		'borders' => array(
-				'allborders' => array(
-						'style' => PHPExcel_Style_Border::BORDER_THIN,
+				'allBorders' => array(
+						'borderStyle' => Border::BORDER_THIN,
 						'color' => array('argb' => 'FF000000'),
 				),
 
-				'bottom'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+				'bottom'		=> array('borderStyle' => Border::BORDER_THIN),
 		),
 
 
@@ -194,12 +203,12 @@ $tableheader3 = array(
 );
 $datacell = array(
 		'borders' => array(
-				'allborders' => array(
-						'style' => PHPExcel_Style_Border::BORDER_THIN,
+				'allBorders' => array(
+						'borderStyle' => Border::BORDER_THIN,
 						'color' => array('argb' => 'FF000000'),
 				),
 
-				'bottom'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+				'bottom'		=> array('style' => Border::BORDER_THIN),
 
 		),
 
@@ -215,8 +224,8 @@ $tableborder = array(
 		'borders' => array(
 
 
-				'bottom'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
-				'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
+				'bottom'		=> array('style' => Border::BORDER_THIN),
+				'right'		=> array('style' => Border::BORDER_THIN)
 		),
 
 
@@ -232,12 +241,12 @@ $datacell_border = array(
 		'borders' => array(
 
 
-				'bottom'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
-				'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
+				'bottom'		=> array('style' => Border::BORDER_THIN),
+				'right'		=> array('style' => Border::BORDER_THIN)
 		),
 
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 		),
 
 		'font'=>array(
@@ -247,7 +256,7 @@ $datacell_border = array(
 
 		),
 		'numberformat'=>array(
-				'code'=>PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00
+				'code'=>NumberFormat::FORMAT_NUMBER_00
 		),
 );
 
@@ -255,11 +264,11 @@ $datacell_border = array(
 $center1=
 array(
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 
 		),
 		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array('rgb'=>'FFFF00'),
 		),
 		'font'=>array(
@@ -272,11 +281,11 @@ array(
 $center2=
 array(
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 
 		),
 		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array('rgb'=>'F82A14'),
 		),
 		'font'=>array(
@@ -289,8 +298,8 @@ array(
 $center=
 array(
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-				'vertical'=>PHPExcel_Style_Alignment::VERTICAL_CENTER
+				'horizontal'=>Alignment::HORIZONTAL_CENTER,
+				'vertical'=>Alignment::VERTICAL_CENTER
 		),
 
 );
@@ -298,11 +307,11 @@ array(
 $center3=
 array(
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 
 		),
 		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array('rgb'=>'BC8F88'),
 		),
 		'font'=>array(
@@ -314,11 +323,11 @@ array(
 $center4=
 array(
 		'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_RIGHT
+				'horizontal'=>Alignment::HORIZONTAL_RIGHT
 
 		),
 		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'fillType' => Fill::FILL_SOLID,
 				'color' => array('rgb'=>'FFFFFF'),
 		),
 		'font'=>array(
@@ -328,55 +337,56 @@ array(
 		)
 );
 
-$imageborder = array(
-	'borders' => array(
-		'outline' => array(
-			'style' => PHPExcel_Style_Border::BORDER_DOUBLE
-		),
-	),
-);
+$imageborder = [
+    'borders' => [
+        'outline' => [
+            'borderStyle' => Border::BORDER_DOUBLE
+        ],
+    ],
+];
 
-$border1 = array(
-	'borders' => array(
-		'outline' => array(
-			'style' => PHPExcel_Style_Border::BORDER_DOUBLE
-		),
-	),
-	'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-				'vertical'=>PHPExcel_Style_Alignment::VERTICAL_CENTER
 
-		),
-		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
-		),
-		'font'=>array(
-				'name'=>'Times New Roman',
-				'size'=>11,
-				'bold'=>true
-		)
-);
 
-$border2= array(
-	'borders' => array(
-		'outline' => array(
-			'style' => PHPExcel_Style_Border::BORDER_DOUBLE
-		),
-	),
-	'alignment'=>array(
-				'horizontal'=>PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-				'vertical'=>PHPExcel_Style_Alignment::VERTICAL_CENTER
+$border1 = [
+    'borders' => [
+        'outline' => [
+            'borderStyle' => Border::BORDER_DOUBLE
+        ],
+    ],
+    'alignment' => [
+        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'vertical'   => Alignment::VERTICAL_CENTER
+    ],
+    'fill' => [
+        'fillType' => Fill::FILL_SOLID,
+    ],
+    'font' => [
+        'name' => 'Times New Roman',
+        'size' => 11,
+        'bold' => true
+    ]
+];
 
-		),
-		'fill' => array(
-				'type' => PHPExcel_Style_Fill::FILL_SOLID,
-		),
-		'font'=>array(
-				'name'=>'Times New Roman',
-				'size'=>11,
-				'bold'=>false
-		)
-);
+$border2 = [
+    'borders' => [
+        'outline' => [
+            'borderStyle' => Border::BORDER_DOUBLE
+        ],
+    ],
+    'alignment' => [
+        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'vertical'   => Alignment::VERTICAL_CENTER
+    ],
+    'fill' => [
+        'fillType' => Fill::FILL_SOLID,
+    ],
+    'font' => [
+        'name' => 'Times New Roman',
+        'size' => 11,
+        'bold' => false
+    ]
+];
+
 
 
 //$objPHPExcel->getActiveSheet()->getStyle('A1:G1')->applyFromArray($tableheader);
@@ -385,14 +395,14 @@ $border2= array(
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':Z'.$i);
 	$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':Z'.$i)->applyFromArray($tableheader);
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.$i, "HULL INTEGRITY AND LIFE EXPECTANCY  SURVEY");
-	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(Alignment::VERTICAL_CENTER);
 
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':Z'.$i);
 	$i++;
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':Z'.$i);
 	$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':Z'.$i)->applyFromArray($tableheader);
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.$i, "TM ANALYSIS WITH ANTICIPATED THICKNESS FOR NEXT 05 YEARS");
-	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(Alignment::VERTICAL_CENTER);
 
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':W'.$i);
 	$i++;
@@ -637,10 +647,10 @@ foreach($arr_project as $key=>$value) {
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('X'.$i, $value['breadth3']);
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Y'.$i, $value['renewal_ton3']);
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Z'.$i, $value['remarks']);
-	$total_ton1=$total_ton1+$value['renewal_ton2'];
-	$total_ton2=$total_ton2+$value['renewal_ton3'];
+	$total_ton1=$total_ton1+(float)$value['renewal_ton2'];
+	$total_ton2=$total_ton2+(float)$value['renewal_ton3'];
 	if($count_row%60==0) {
-		$objPHPExcel->getActiveSheet()->setBreak('A'.$i, PHPExcel_Worksheet::BREAK_ROW);
+		$objPHPExcel->getActiveSheet()->setBreak('A'.$i, Worksheet::BREAK_ROW);
 	}
 	$count_row++;
 	$i++;
@@ -707,7 +717,7 @@ $objPHPExcel->getActiveSheet()->mergeCells('X'.$i.':Y'.$i);
 $objPHPExcel->getActiveSheet()->getStyle('X'.$i.':Y'.$i)->applyFromArray($center3);
 $objPHPExcel->setActiveSheetIndex(0)->setCellValue('X'.$i, $total_ton2);
 $rslt = $objstruct->displayImageDetails($_REQUEST['project_id']);
-$row_img = mysql_fetch_assoc($rslt);
+$row_img = mysqli_fetch_assoc($rslt);
 
 $path1 = 'upload_images/'.$row_img['image1'];
 $path2 = 'upload_images/'.$row_img['image2'];
@@ -727,19 +737,19 @@ $path15 = 'upload_images/'.$row_img['image15'];
 $path16 = 'upload_images/'.$row_img['image16'];
 
 $i=$i+5;
-$objPHPExcel->getActiveSheet()->setBreak('A'.$i, PHPExcel_Worksheet::BREAK_ROW);
+$objPHPExcel->getActiveSheet()->setBreak('A'.$i, Worksheet::BREAK_ROW);
 //$objPHPExcel->getActiveSheet()->getPageSetup()->setRowsToRepeatAtTop(array(0,0));
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':Z'.$i);
 	$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':Z'.$i)->applyFromArray($tableheader);
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.$i, "HULL INTEGRITY AND LIFE EXPECTANCY  SURVEY");
-	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(Alignment::VERTICAL_CENTER);
 
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':Z'.$i);
 	$i++;
 	$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':Z'.$i);
 	$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':Z'.$i)->applyFromArray($tableheader);
 	$objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.$i, "TM ANALYSIS WITH ANTICIPATED THICKNESS FOR NEXT 05 YEARS");
-	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->setHorizontal(Alignment::VERTICAL_CENTER);
 
 	/*$objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':W'.$i);
 	$i++;
@@ -813,7 +823,7 @@ $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.($i), 'COATING CONDITION 
 $i=$i+2;
 
 if(!empty($row_img['image1']) && is_file($path1)) {
-	$objDrawing1 = new PHPExcel_Worksheet_Drawing();
+	$objDrawing1 = new Drawing();
 	$objDrawing1->setName('PHPExcel logo');
 	$objDrawing1->setDescription('PHPExcel logo');
 	$objDrawing1->setPath($path1);       // filesystem reference for the image file
@@ -828,8 +838,8 @@ if(!empty($row_img['image1']) && is_file($path1)) {
 }
 
 $objPHPExcel->getActiveSheet()->getStyle('V'.$i.':Z'.$i)->applyFromArray($tableheader3);
-if(!empty($row_img['image2'])) {
-	$objDrawing2 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image2']) && is_file($path2)) {
+	$objDrawing2 = new Drawing();
 	$objDrawing2->setName('PHPExcel logo');
 	$objDrawing2->setDescription('PHPExcel logo');
 	$objDrawing2->setPath($path2);       // filesystem reference for the image file
@@ -841,8 +851,8 @@ if(!empty($row_img['image2'])) {
 	$objDrawing2->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('D'.($i).':K'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image3'])) {
-	$objDrawing3 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image3']) && is_file($path3)) {
+	$objDrawing3 = new Drawing();
 	$objDrawing3->setName('PHPExcel logo');
 	$objDrawing3->setDescription('PHPExcel logo');
 	$objDrawing3->setPath($path3);       // filesystem reference for the image file
@@ -854,8 +864,8 @@ if(!empty($row_img['image3'])) {
 	$objDrawing3->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('L'.($i).':V'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image4'])) {
-	$objDrawing4 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image4']) && is_file($path4)) {
+	$objDrawing4 = new Drawing();
 	$objDrawing4->setName('PHPExcel logo');
 	$objDrawing4->setDescription('PHPExcel logo');
 	$objDrawing4->setPath($path4);       // filesystem reference for the image file
@@ -936,8 +946,8 @@ $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.($i), 'COATING CONDITION 
 $i=$i+2;
 
 //$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':AM4')->applyFromArray($center);
-if(!empty($row_img['image5'])) {
-	$objDrawing5 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image5']) && is_file($path5)) {
+	$objDrawing5 = new Drawing();
 	$objDrawing5->setName('PHPExcel logo');
 	$objDrawing5->setDescription('PHPExcel logo');
 	$objDrawing5->setPath($path5);       // filesystem reference for the image file
@@ -949,8 +959,8 @@ if(!empty($row_img['image5'])) {
 	$objDrawing5->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('A'.($i).':C'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image6'])) {
-	$objDrawing6 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image6']) && is_file($path6)) {
+	$objDrawing6 = new Drawing();
 	$objDrawing6->setName('PHPExcel logo');
 	$objDrawing6->setDescription('PHPExcel logo');
 	$objDrawing6->setPath($path6);       // filesystem reference for the image file
@@ -962,8 +972,8 @@ if(!empty($row_img['image6'])) {
 	$objDrawing6->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('D'.($i).':K'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image7'])) {
-	$objDrawing7 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image7']) && is_file($path7)) {
+	$objDrawing7 = new Drawing();
 	$objDrawing7->setName('PHPExcel logo');
 	$objDrawing7->setDescription('PHPExcel logo');
 	$objDrawing7->setPath($path7);       // filesystem reference for the image file
@@ -975,8 +985,8 @@ if(!empty($row_img['image7'])) {
 	$objDrawing7->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('L'.($i).':V'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image8'])) {
-	$objDrawing8 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image8']) && is_file($path8)) {
+	$objDrawing8 = new Drawing();
 	$objDrawing8->setName('PHPExcel logo');
 	$objDrawing8->setDescription('PHPExcel logo');
 	$objDrawing8->setPath($path8);       // filesystem reference for the image file
@@ -1049,15 +1059,15 @@ $objPHPExcel->setActiveSheetIndex(0)->setCellValue('L'.($i), $row_img['recommend
 $i=$i+2;
 $objPHPExcel->getActiveSheet()->getStyle('A'.($i).':Z'.($i))->applyFromArray($tableheader);
 $objPHPExcel->getActiveSheet()->mergeCells('A'.($i).':Z'.($i));
-$objPHPExcel->getActiveSheet()->setBreak('A'.$i, PHPExcel_Worksheet::BREAK_ROW);
+$objPHPExcel->getActiveSheet()->setBreak('A'.$i, Worksheet::BREAK_ROW);
 //$objPHPExcel->getActiveSheet()->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(array(4,8));
 $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.($i), 'STRUCTURAL ASSESSMENT OF PLATING');
 
 $i=$i+2;
 
 //$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':AM4')->applyFromArray($center);
-if(!empty($row_img['image9'])) {
-	$objDrawing9 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image9']) && is_file($path9) ) {
+	$objDrawing9 = new Drawing();
 	$objDrawing9->setName('PHPExcel logo');
 	$objDrawing9->setDescription('PHPExcel logo');
 	$objDrawing9->setPath($path9);       // filesystem reference for the image file
@@ -1069,8 +1079,8 @@ if(!empty($row_img['image9'])) {
 	$objDrawing9->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('A'.($i).':C'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image10'])) {
-	$objDrawing10 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image10']) && is_file($path10)) {
+	$objDrawing10 = new Drawing();
 	$objDrawing10->setName('PHPExcel logo');
 	$objDrawing10->setDescription('PHPExcel logo');
 	$objDrawing10->setPath($path10);       // filesystem reference for the image file
@@ -1082,8 +1092,8 @@ if(!empty($row_img['image10'])) {
 	$objDrawing10->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('D'.($i).':K'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image11'])) {
-	$objDrawing11 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image11']) && is_file($path11)) {
+	$objDrawing11 = new Drawing();
 	$objDrawing11->setName('PHPExcel logo');
 	$objDrawing11->setDescription('PHPExcel logo');
 	$objDrawing11->setPath($path11);       // filesystem reference for the image file
@@ -1096,7 +1106,7 @@ if(!empty($row_img['image11'])) {
 	$objPHPExcel->getActiveSheet()->getStyle('L'.($i).':V'.($i+12))->applyFromArray($imageborder);
 }
 if(!empty($row_img['image12'])  && is_file($path12)) {
-	$objDrawing12 = new PHPExcel_Worksheet_Drawing();
+	$objDrawing12 = new Drawing();
 	$objDrawing12->setName('PHPExcel logo');
 	$objDrawing12->setDescription('PHPExcel logo');
 	$objDrawing12->setPath($path12);       // filesystem reference for the image file
@@ -1171,8 +1181,8 @@ $objPHPExcel->getActiveSheet()->mergeCells('A'.($i).':Z'.($i));
 $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A'.($i), 'STRUCTURAL ASSESSMENT OF INTERNALS');
 $i=$i+2;
 //$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':AM4')->applyFromArray($center);
-if(!empty($row_img['image13'])) {
-	$objDrawing13 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image13']) && is_file($path13)) {
+	$objDrawing13 = new Drawing();
 	$objDrawing13->setName('PHPExcel logo');
 	$objDrawing13->setDescription('PHPExcel logo');
 	$objDrawing13->setPath($path13);       // filesystem reference for the image file
@@ -1184,8 +1194,8 @@ if(!empty($row_img['image13'])) {
 	$objDrawing13->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('A'.($i).':C'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image14'])) {
-	$objDrawing14 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image14']) && is_file($path14)) {
+	$objDrawing14 = new Drawing();
 	$objDrawing14->setName('PHPExcel logo');
 	$objDrawing14->setDescription('PHPExcel logo');
 	$objDrawing14->setPath($path14);       // filesystem reference for the image file
@@ -1197,8 +1207,8 @@ if(!empty($row_img['image14'])) {
 	$objDrawing14->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('D'.($i).':K'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image15'])) {
-	$objDrawing15 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image15'])&& is_file($path15)) {
+	$objDrawing15 = new Drawing();
 	$objDrawing15->setName('PHPExcel logo');
 	$objDrawing15->setDescription('PHPExcel logo');
 	$objDrawing15->setPath($path15);       // filesystem reference for the image file
@@ -1210,8 +1220,8 @@ if(!empty($row_img['image15'])) {
 	$objDrawing15->setWorksheet($objPHPExcel->getActiveSheet());
 	$objPHPExcel->getActiveSheet()->getStyle('L'.($i).':V'.($i+12))->applyFromArray($imageborder);
 }
-if(!empty($row_img['image16'])) {
-	$objDrawing16 = new PHPExcel_Worksheet_Drawing();
+if(!empty($row_img['image16']) && is_file($path16)) {
+	$objDrawing16 = new Drawing();
 	$objDrawing16->setName('PHPExcel logo');
 	$objDrawing16->setDescription('PHPExcel logo');
 	$objDrawing16->setPath($path16);       // filesystem reference for the image file
@@ -1289,17 +1299,23 @@ $objPHPExcel->setActiveSheetIndex(0);
 
 // Set Orientation, size and scaling
 $objPHPExcel->setActiveSheetIndex(0);
-$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
-$objPHPExcel->getActiveSheet()->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);
+$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
+$objPHPExcel->getActiveSheet()->getPageSetup()->setPaperSize(PageSetup::PAPERSIZE_A4);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToPage(true);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToWidth(1);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToHeight(0);
 // Redirect output to a client’s web browser (Excel5)
-header('Content-Type: application/vnd.ms-excel');
-header('Content-Disposition: attachment;filename="Hull Intergrity Survey"'.'"xls"');
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="Hull Intergrity Survey.xlsx"');
 header('Cache-Control: max-age=0');
 
-$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+// header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+// header('Content-Disposition: attachment;filename="Salary_Report.xlsx"');
+// header('Cache-Control: max-age=0');
+// $objWriter = IOFactory::createWriter($objPHPExcel,'Xlsx');
+// $objWriter->save('php://output');
+
+$objWriter = IOFactory::createWriter($objPHPExcel, 'Xlsx');
 $objWriter->save('suvey_report.xls');;
 $file = 'suvey_report.xls';
 if (file_exists($file)) {
