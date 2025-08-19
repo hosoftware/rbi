@@ -1315,8 +1315,8 @@ header('Content-Disposition: attachment;filename="Hull Intergrity Survey.xlsx"')
 header('Cache-Control: max-age=0');
 
 $writer = new Xlsx($objPHPExcel);
-$writer->save('php://output'); // send directly to browser
-exit;
+$writer->save('suvey_report.xlsx'); // send directly to browser
+//exit;
 
 // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 // header('Content-Disposition: attachment;filename="Salary_Report.xlsx"');
