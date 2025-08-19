@@ -880,6 +880,7 @@ $objDrawing4->setWorksheet($objPHPExcel->getActiveSheet());
 $objPHPExcel->getActiveSheet()->getStyle('W'.($i).':Z'.($i+12))->applyFromArray($imageborder);
 }
 $i++;
+print 1;exit;
 $i = $i+13;
 $objPHPExcel->getActiveSheet()->getStyle('A'.($i).':C'.($i+2))->applyFromArray($imageborder);
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':C'.$i);
