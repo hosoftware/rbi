@@ -585,7 +585,7 @@ if(!empty($row['sarveydate'])) {
 				</li>
 				<div class='clear'></div>
 				<li class='lst-item'>
-					<label class='label1'>Servey Date:</label><span class='span_txt'><input type='text' name='txtsarveydate' id='txtsarveydate' value='<?php print($_REQUEST['txtsarveydate'])?>' size="20"/> <img
+					<label class='label1'>Survey Date:</label><span class='span_txt'><input type='text' name='txtsarveydate' id='txtsarveydate' value='<?php print($_REQUEST['txtsarveydate'])?>' size="20"/> <img
 									title="Calendar" style="vertical-align: middle;"
 									src="images/calendar0.gif"
 									onClick="return showCal('txtsarveydate', 'y-mm-dd');" border="0"></span>
