@@ -1314,31 +1314,25 @@ header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetm
 header('Content-Disposition: attachment;filename="Hull Intergrity Survey.xlsx"');
 header('Cache-Control: max-age=0');
 
+// $writer = new Xlsx($objPHPExcel);
+// $writer->save('suvey_report.xlsx'); // send directly to browser
+// //exit;
+
+$file = 'survey_report.xlsx';
+
 $writer = new Xlsx($objPHPExcel);
-$writer->save('suvey_report.xlsx'); // send directly to browser
-//exit;
+$writer->save($file);   // correctly saved file
 
-// header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-// header('Content-Disposition: attachment;filename="Salary_Report.xlsx"');
-// header('Cache-Control: max-age=0');
-// $objWriter = IOFactory::createWriter($objPHPExcel,'Xlsx');
-// $objWriter->save('php://output');
-
-//$objWriter = IOFactory::createWriter($objPHPExcel, 'Xlsx');
-//$objWriter->save('suvey_report.xls');;
-$file = 'suvey_report.xls';
 if (file_exists($file)) {
-	header('Content-Description: File Transfer');
-	header('Content-Type: application/octet-stream');
-	header('Content-Disposition: attachment; filename='.basename($file));
-	header('Expires: 0');
-	header('Cache-Control: must-revalidate');
-	header('Pragma: public');
-	header('Content-Length: ' . filesize($file));
-	ob_clean();
-	flush();
-	readfile($file);
-	unlink($file);
-	exit;
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="'.basename($file).'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($file));
+    flush();
+    readfile($file);
+    unlink($file); // delete AFTER serving
+    exit;
 }
-exit;
