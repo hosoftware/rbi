@@ -880,7 +880,7 @@ $objDrawing4->setWorksheet($objPHPExcel->getActiveSheet());
 $objPHPExcel->getActiveSheet()->getStyle('W'.($i).':Z'.($i+12))->applyFromArray($imageborder);
 }
 $i++;
-print 1;exit;
+
 $i = $i+13;
 $objPHPExcel->getActiveSheet()->getStyle('A'.($i).':C'.($i+2))->applyFromArray($imageborder);
 $objPHPExcel->getActiveSheet()->mergeCells('A'.$i.':C'.$i);
@@ -1308,6 +1308,7 @@ $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToPage(true);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToWidth(1);
 $objPHPExcel->getActiveSheet()->getPageSetup()->setFitToHeight(0);
 // Redirect output to a client’s web browser (Excel5)
+print 1;exit;
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header('Content-Disposition: attachment;filename="Hull Intergrity Survey.xlsx"');
 header('Cache-Control: max-age=0');
