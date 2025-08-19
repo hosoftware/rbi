@@ -70,7 +70,7 @@ class struct_option {
 						$image_id = $this->insertImageDetails();
 					}
 					$this->addImage();
-					exit;
+					//exit;
 					header('location:struct_project_listing.php');
 					break;
 				case 'CopyProject':
@@ -515,7 +515,7 @@ class struct_option {
 					$sql_upd = "UPDATE IGNORE image_details
 					SET image".$i."='".$filename."'
 					WHERE project_id = '".$_REQUEST['project_id']."'";
-					print $sql_upd;
+					//print $sql_upd;
 					mysqli_query($this->dbcon,$sql_upd);
 				}
 			}
